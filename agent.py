@@ -34,35 +34,35 @@ class Agent:
         dir_d = game.direction == Direction.DOWN
 
         state = [
-            # Danger straight
+            #Kijken voor gevaar vooruit
             (dir_r and game.is_collision(point_r)) or 
             (dir_l and game.is_collision(point_l)) or 
             (dir_u and game.is_collision(point_u)) or 
             (dir_d and game.is_collision(point_d)),
 
-            # Danger right
+            #Kijken voor gevaar rechts
             (dir_u and game.is_collision(point_r)) or 
             (dir_d and game.is_collision(point_l)) or 
             (dir_l and game.is_collision(point_u)) or 
             (dir_r and game.is_collision(point_d)),
 
-            # Danger left
+            #Kijken voor gevaar links
             (dir_d and game.is_collision(point_r)) or 
             (dir_u and game.is_collision(point_l)) or 
             (dir_r and game.is_collision(point_u)) or 
             (dir_l and game.is_collision(point_d)),
             
-            # Move direction
+            #Richtingen voor bewegen
             dir_l,
             dir_r,
             dir_u,
             dir_d,
             
-            # Food location 
-            game.food.x < game.head.x,  # food left
-            game.food.x > game.head.x,  # food right
-            game.food.y < game.head.y,  # food up
-            game.food.y > game.head.y  # food down
+            #Locatie van het eten
+            game.food.x < game.head.x,  #eten links
+            game.food.x > game.head.x,  #eten rechts
+            game.food.y < game.head.y,  #eten boven
+            game.food.y > game.head.y  #eten beneden
             ]
 
         return np.array(state, dtype=int)
