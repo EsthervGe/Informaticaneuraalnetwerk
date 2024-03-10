@@ -5,7 +5,6 @@ from collections import namedtuple
 import numpy as np
 
 pygame.init()
-#font = pygame.font.Font('arial.ttf', 25)
 font = pygame.font.SysFont('arial', 25)
 
 class Direction(Enum):
@@ -16,7 +15,7 @@ class Direction(Enum):
 
 Point = namedtuple('Point', 'x, y')
 
-# rgb colors
+
 WHITE = (255, 255, 255)
 RED = (200,0,0)
 BLUE1 = (0, 0, 255)
@@ -27,19 +26,18 @@ BLOCK_SIZE = 20
 SPEED = 40
 
 class SnakeGameAI:
-
+#de init functie zet als het ware de game op
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
-        # init display
+        #Maak het display
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
         self.reset()
 
-
+# wat er moet gebeuren als de slang moet reseten (dus bijvoorbeeld score op 0 en waar de slang moet komen)
     def reset(self):
-        # init game state
         self.direction = Direction.RIGHT
 
         self.head = Point(self.w/2, self.h/2)
@@ -52,7 +50,7 @@ class SnakeGameAI:
         self._place_food()
         self.frame_iteration = 0
 
-
+# Plaats eten op een random coordinaat, als deze in de slang ligt herplaats dit eten
     def _place_food(self):
         x = random.randint(0, (self.w-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
         y = random.randint(0, (self.h-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
@@ -63,17 +61,18 @@ class SnakeGameAI:
 
     def play_step(self, action):
         self.frame_iteration += 1
-        # 1. collect user input
+
+        # Check of het programma gestopt wordt door de user
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
         
-        # 2. move
-        self._move(action) # update the head
+        # Beweeg
+        self._move(action) 
         self.snake.insert(0, self.head)
         
-        # 3. check if game over
+        # Check of game over
         reward = 0
         game_over = False
         if self.is_collision() or self.frame_iteration > 100*len(self.snake):
@@ -81,7 +80,7 @@ class SnakeGameAI:
             reward = -10
             return reward, game_over, self.score
 
-        # 4. place new food or just move
+        # check of de slang eten raakt en voer bijpassende acties uit of beweeg
         if self.head == self.food:
             self.score += 1
             reward = 10
@@ -89,26 +88,27 @@ class SnakeGameAI:
         else:
             self.snake.pop()
         
-        # 5. update ui and clock
+        # update ui en klok
         self._update_ui()
         self.clock.tick(SPEED)
-        # 6. return game over and score
+        
+        # geef reward, game_over en self.score terug
         return reward, game_over, self.score
 
-
+#check op botsingen
     def is_collision(self, pt=None):
         if pt is None:
             pt = self.head
-        # hits boundary
+        # Raakt de zijkant
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
-        # hits itself
+        # Raakt zichzelf
         if pt in self.snake[1:]:
             return True
 
         return False
 
-
+#beschrijft hoe de ui moet updaten en dus ook hoe deze er standaard uit ziet
     def _update_ui(self):
         self.display.fill(BLACK)
 
@@ -122,15 +122,14 @@ class SnakeGameAI:
         self.display.blit(text, [0, 0])
         pygame.display.flip()
 
-
+#beslkist welke beweging er genomen moet worden op basis van de eerder beslisde actie van rechtdoor, links of rechts
     def _move(self, action):
-        # [straight, right, left]
 
         clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
         idx = clock_wise.index(self.direction)
 
         if np.array_equal(action, [1, 0, 0]):
-            new_dir = clock_wise[idx] # no change
+            new_dir = clock_wise[idx] 
         elif np.array_equal(action, [0, 1, 0]):
             next_idx = (idx + 1) % 4
             new_dir = clock_wise[next_idx] # right turn r -> d -> l -> u
